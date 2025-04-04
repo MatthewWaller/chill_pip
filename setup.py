@@ -16,11 +16,16 @@ setup(
     include_package_data=True,
     package_data={
         'chill_pip': [
-            'pytransform/*.py',
-            'pytransform/*.so',
-            'pytransform/*.dll',
-            'pytransform/*.dylib',
-            'pytransform/platforms/*/*/*',
+            'pytransform/__init__.py',
+            'pytransform/pytransform.py',
+            'pytransform/_pytransform.dylib',
+            'pytransform/_pytransform.dll',
+            'pytransform/_pytransform.so',
+            'pytransform/_pytransform_arm64.dylib',
+            'pytransform/platforms/darwin/x86_64/_pytransform.dylib',
+            'pytransform/platforms/darwin/arm64/_pytransform.dylib',
+            'pytransform/platforms/windows/x86_64/_pytransform.dll',
+            'pytransform/platforms/linux/x86_64/_pytransform.so',
         ],
     },
     classifiers=[
