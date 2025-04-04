@@ -4,7 +4,14 @@ recursive-include chill_pip/app/assets *
 
 # Include PyArmor runtime files
 recursive-include chill_pip/pytransform *
-global-include *.dylib *.so *.dll 
+
+# Explicitly include platform-specific binaries
+global-include *.dylib *.so *.dll
+global-include _pytransform.*
+recursive-include chill_pip/pytransform/platforms *
+
+# Ensure no temporary files are included
+global-exclude *.py[cod] __pycache__ *.so.dSYM 
 # Include PyArmor runtime files
 recursive-include chill_pip/pytransform *
 global-include *.dylib *.so *.dll
