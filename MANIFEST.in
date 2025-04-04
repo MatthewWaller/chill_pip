@@ -1,9 +1,11 @@
 include README.md
 include LICENSE
+include MANIFEST.in
 recursive-include chill_pip/app/assets *
 
 # Include PyArmor runtime files
 recursive-include chill_pip/pytransform *
+global-include *.dylib *.so *.dll *.lic
 
 # Explicitly include platform-specific binaries
 global-include *.dylib *.so *.dll
@@ -19,6 +21,3 @@ recursive-include chill_pip/pytransform/platforms/linux/x86_64 *
 
 # Ensure no temporary files are included
 global-exclude *.py[cod] __pycache__ *.so.dSYM 
-# Include PyArmor runtime files
-recursive-include chill_pip/pytransform *
-global-include *.dylib *.so *.dll

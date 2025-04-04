@@ -19,12 +19,11 @@ def get_pytransform_files():
 setup(
     name="chill_pip",
     version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Matthew Waller",
     description="A simple Dash application with secret functionality",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/chill_pip",
+    url="https://github.com/MatthewWaller/chill_pip",
     packages=find_packages(),
     include_package_data=True,
     package_data={
@@ -35,13 +34,11 @@ setup(
             'pytransform/_pytransform.dll',
             'pytransform/_pytransform.so',
             'pytransform/_pytransform_arm64.dylib',
+            'pytransform/license.lic',
             'pytransform/platforms/darwin/x86_64/_pytransform.dylib',
             'pytransform/platforms/darwin/arm64/_pytransform.dylib',
             'pytransform/platforms/windows/x86_64/_pytransform.dll',
             'pytransform/platforms/linux/x86_64/_pytransform.so',
-            # Include license file
-            'pytransform/license.lic',
-            # Make sure all platform binaries are included
             'pytransform/platforms/**/*',
         ],
     },
