@@ -1,7 +1,20 @@
 from setuptools import setup, find_packages
+import os
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
+
+# Ensure we include all necessary PyArmor files
+def get_pytransform_files():
+    pytransform_files = []
+    for root, dirs, files in os.walk("chill_pip/pytransform"):
+        for file in files:
+            # Create relative path from chill_pip directory
+            rel_path = os.path.join(root, file)
+            if rel_path.startswith("chill_pip/"):
+                rel_path = rel_path[len("chill_pip/"):]
+            pytransform_files.append(rel_path)
+    return pytransform_files
 
 setup(
     name="chill_pip",
@@ -15,7 +28,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     package_data={
-        'chill_pip': [
+        'chill_pip': get_pytransform_files() + [
             'pytransform/__init__.py',
             'pytransform/pytransform.py',
             'pytransform/_pytransform.dylib',
@@ -26,6 +39,10 @@ setup(
             'pytransform/platforms/darwin/arm64/_pytransform.dylib',
             'pytransform/platforms/windows/x86_64/_pytransform.dll',
             'pytransform/platforms/linux/x86_64/_pytransform.so',
+            # Include license file
+            'pytransform/license.lic',
+            # Make sure all platform binaries are included
+            'pytransform/platforms/**/*',
         ],
     },
     classifiers=[

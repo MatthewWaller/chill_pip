@@ -1,4 +1,3 @@
-
 # ARM64 detection for Apple Silicon Macs
 import os
 import platform
@@ -395,10 +394,33 @@ def _load_library(path=None, is_runtime=0, platid=None, suffix='', advanced=0):
     return m
 
 
+def _load_license():
+    pyarmor_dir = os.path.dirname(os.path.abspath(__file__))
+    license_file = os.path.join(pyarmor_dir, 'license.lic')
+    if os.path.exists(license_file):
+        with open(license_file, 'rb') as f:
+            return f.read()
+    return None
+
+
 def pyarmor_init(path=None, is_runtime=0, platid=None, suffix='', advanced=0):
     global _pytransform
     _pytransform = _load_library(path, is_runtime, platid, suffix, advanced)
-    return init_pytransform()
+    init_result = init_pytransform()
+    
+    # Try to use our cross-platform license file
+    license_data = _load_license()
+    if license_data and _pytransform is not None:
+        try:
+            from ctypes import c_char, py_object
+            prototype = PYFUNCTYPE(c_int, c_char_p, c_int)
+            dlfunc = prototype(('set_license_key', _pytransform))
+            dlfunc(license_data, len(license_data))
+        except Exception as e:
+            if sys.flags.debug:
+                print('Load license failed: %s' % str(e))
+    
+    return init_result
 
 
 def pyarmor_runtime(path=None, suffix='', advanced=0):
