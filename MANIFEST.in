@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+recursive-include chill_pip/app/assets *
+
+# Include PyArmor runtime files
+recursive-include chill_pip/pytransform *
+global-include *.dylib *.so *.dll 
+# Include PyArmor runtime files
+recursive-include chill_pip/pytransform *
+global-include *.dylib *.so *.dll
