@@ -45,3 +45,14 @@ For testing purposes, you can use these license keys:
 
 - Premium License: `AAAAA-BBBBB-CCCCC-DDDDD-EEEEE`
 - Trial License: `DEMO1-DEMO2-DEMO3-DEMO4-DEMO5` (expired) 
+
+## Running on Apple Silicon (M-series) Macs
+
+If you encounter issues running on Apple Silicon Macs, use the included ARM fix script:
+
+```
+# After installing the package:
+python fix_arm_binary.py
+```
+
+This will ensure the correct ARM64 binary is used.
