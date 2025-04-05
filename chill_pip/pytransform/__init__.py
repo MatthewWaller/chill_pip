@@ -1,56 +1,87 @@
 
-# Architecture detection for macOS
+# ARM architecture detection for macOS - MUST be at the top of the file
 import os
 import platform
 import shutil
 import sys
 
 def _detect_mac_arch():
-    """Check if running on Apple Silicon and use appropriate binary."""
+    """
+    Check if running on Apple Silicon and use appropriate binary.
+    This MUST run before any attempt to load the pytransform binary.
+    """
     # Only needed on macOS
     if platform.system() != "Darwin":
         return
     
     # Get the directory where this file is located
     pyarmor_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Check CPU architecture - but beware of Rosetta
     current_arch = platform.machine()
     print(f"Running on architecture: {current_arch}")
     
+    # Check for binary in root directory
+    root_dylib = os.path.join(pyarmor_dir, "_pytransform.dylib")
+    has_root_binary = os.path.exists(root_dylib)
+    
     if current_arch == "arm64":
-        # Running on ARM64/Apple Silicon
-        arm64_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "aarch64", "_pytransform.dylib")
-        if os.path.exists(arm64_lib):
-            # Copy ARM64 binary to root if not already there or if it's wrong architecture
-            dest_lib = os.path.join(pyarmor_dir, "_pytransform.dylib")
-            if not os.path.exists(dest_lib):
-                print(f"Copying ARM64 binary for Apple Silicon to {dest_lib}")
-                shutil.copy2(arm64_lib, dest_lib)
-            else:
-                # Check if current binary is correct architecture
-                import subprocess
+        # First check for ARM64-specific binary with special name
+        arm64_specific = os.path.join(pyarmor_dir, "_pytransform_arm64.dylib")
+        if os.path.exists(arm64_specific):
+            # If we have ARM-specific binary and need to replace root, do it
+            if has_root_binary:
+                # Check if current binary is ARM64
                 try:
-                    result = subprocess.run(['file', dest_lib], capture_output=True, text=True)
+                    import subprocess
+                    result = subprocess.run(['file', root_dylib], capture_output=True, text=True)
                     if 'arm64' not in result.stdout:
                         print(f"Replacing x86_64 binary with ARM64 binary")
-                        shutil.copy2(arm64_lib, dest_lib)
-                except:
+                        # Back up the existing binary first
+                        if not os.path.exists(os.path.join(pyarmor_dir, "_pytransform_x86.dylib")):
+                            shutil.copy2(root_dylib, os.path.join(pyarmor_dir, "_pytransform_x86.dylib"))
+                        # Replace with ARM64
+                        shutil.copy2(arm64_specific, root_dylib)
+                except Exception as e:
+                    print(f"Exception during binary check: {e}")
                     # Just replace to be safe
-                    shutil.copy2(arm64_lib, dest_lib)
-    else:
-        # Running on Intel Mac
+                    shutil.copy2(arm64_specific, root_dylib)
+            else:
+                # No root binary, just copy ARM64
+                print(f"Copying ARM64 binary to root")
+                shutil.copy2(arm64_specific, root_dylib)
+            return
+            
+        # Next try platforms directory
+        arm64_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "aarch64", "_pytransform.dylib")
+        if os.path.exists(arm64_lib):
+            if has_root_binary:
+                # Check if current binary is ARM64
+                try:
+                    import subprocess
+                    result = subprocess.run(['file', root_dylib], capture_output=True, text=True)
+                    if 'arm64' not in result.stdout:
+                        print(f"Replacing x86_64 binary with ARM64 binary from platforms")
+                        # Back up the existing binary first
+                        if not os.path.exists(os.path.join(pyarmor_dir, "_pytransform_x86.dylib")):
+                            shutil.copy2(root_dylib, os.path.join(pyarmor_dir, "_pytransform_x86.dylib"))
+                        # Replace with ARM64
+                        shutil.copy2(arm64_lib, root_dylib)
+                except Exception as e:
+                    print(f"Exception during binary check: {e}")
+                    # Just replace to be safe
+                    shutil.copy2(arm64_lib, root_dylib)
+            else:
+                # No root binary, just copy ARM64
+                print(f"Copying ARM64 binary from platforms to root")
+                shutil.copy2(arm64_lib, root_dylib)
+    elif not has_root_binary:
+        # For Intel Mac with no root binary
         x86_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "x86_64", "_pytransform.dylib")
         if os.path.exists(x86_lib):
-            # Copy x86_64 binary to root if not already there
-            dest_lib = os.path.join(pyarmor_dir, "_pytransform.dylib")
-            if not os.path.exists(dest_lib):
-                print(f"Copying Intel binary for macOS to {dest_lib}")
-                shutil.copy2(x86_lib, dest_lib)
+            print(f"Copying Intel binary to root")
+            shutil.copy2(x86_lib, root_dylib)
 
-# Run architecture detection
+# Run architecture detection immediately - this MUST run before any imports
 _detect_mac_arch()
-
 # These module alos are used by protection code, so that protection
 # code needn't import anything
 import os

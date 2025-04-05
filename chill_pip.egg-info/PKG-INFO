@@ -1,9 +1,0 @@
-Metadata-Version: 2.1
-Name: chill_pip
-Version: 0.1.0
-Summary: A simple Dash application with obfuscated functionality
-Author: Matthew Waller
-Author-email: admin@sapientai.io
-Requires-Dist: dash>=2.0.0
-Requires-Dist: dash-bootstrap-components>=1.0.0
-Requires-Dist: Flask>=2.0.0
