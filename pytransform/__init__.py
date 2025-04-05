@@ -1,10 +1,3 @@
-
-# ARM architecture detection for macOS - MUST be at the top of the file
-import os
-import platform
-import shutil
-import sys
-
 # These module alos are used by protection code, so that protection
 # code needn't import anything
 import os
@@ -100,6 +93,15 @@ def encrypt_code_object(pubkey, co, flags, suffix=''):
     prototype = PYFUNCTYPE(py_object, py_object, py_object, c_int)
     dlfunc = prototype(('encrypt_code_object', _pytransform))
     return dlfunc(pubkey, co, flags)
+
+
+@dllmethod
+def generate_license_file(filename, priname, rcode, start=-1, count=1):
+    prototype = PYFUNCTYPE(c_int, c_char_p, c_char_p, c_char_p, c_int, c_int)
+    dlfunc = prototype(('generate_project_license_files', _pytransform))
+    return dlfunc(filename.encode(), priname.encode(), rcode.encode(),
+                  start, count) if sys.version_info[0] == 3 \
+        else dlfunc(filename, priname, rcode, start, count)
 
 
 @dllmethod
@@ -382,19 +384,6 @@ def pyarmor_runtime(path=None, suffix='', advanced=0):
 # ----------------------------------------------------------
 
 #
-# Unused
-#
-
-
-@dllmethod
-def generate_license_file(filename, priname, rcode, start=-1, count=1):
-    prototype = PYFUNCTYPE(c_int, c_char_p, c_char_p, c_char_p, c_int, c_int)
-    dlfunc = prototype(('generate_project_license_files', _pytransform))
-    return dlfunc(filename.encode(), priname.encode(), rcode.encode(),
-                  start, count) if sys.version_info[0] == 3 \
-        else dlfunc(filename, priname, rcode, start, count)
-
-#
 # Not available from v5.6
 #
 
@@ -423,8 +412,6 @@ def _generate_pytransform_key(licfile, pubkey):
 #
 # Deprecated functions from v5.1
 #
-
-
 @dllmethod
 def encrypt_project_files(proname, filelist, mode=0):
     prototype = PYFUNCTYPE(c_int, c_char_p, py_object, c_int)
@@ -463,8 +450,6 @@ def generate_module_key(pubname, key):
 #
 # Compatible for PyArmor v3.0
 #
-
-
 @dllmethod
 def old_init_runtime(systrace=0, sysprofile=1, threadtrace=0, threadprofile=1):
     '''Only for old version, before PyArmor 3'''

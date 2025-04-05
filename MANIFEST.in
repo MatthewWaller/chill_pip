@@ -4,5 +4,7 @@ include LICENSE
 
 # Include PyArmor runtime files
 recursive-include chill_pip/pytransform *
-recursive-include chill_pip/pytransform/platforms *
 global-include *.dylib *.so *.dll *.lic
+
+# Ensure platform-specific files are included
+recursive-include chill_pip/pytransform/platforms *
