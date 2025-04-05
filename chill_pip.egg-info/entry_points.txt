@@ -1,0 +1,2 @@
+[console_scripts]
+chill-pip = chill_pip.run:main

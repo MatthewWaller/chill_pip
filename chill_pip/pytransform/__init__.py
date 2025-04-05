@@ -14,16 +14,30 @@ def _detect_mac_arch():
     # Get the directory where this file is located
     pyarmor_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Check platforms directory for appropriate binary
-    if platform.machine() == "arm64":
+    # Check CPU architecture - but beware of Rosetta
+    current_arch = platform.machine()
+    print(f"Running on architecture: {current_arch}")
+    
+    if current_arch == "arm64":
         # Running on ARM64/Apple Silicon
         arm64_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "aarch64", "_pytransform.dylib")
         if os.path.exists(arm64_lib):
-            # Copy ARM64 binary to root if not already there
+            # Copy ARM64 binary to root if not already there or if it's wrong architecture
             dest_lib = os.path.join(pyarmor_dir, "_pytransform.dylib")
             if not os.path.exists(dest_lib):
+                print(f"Copying ARM64 binary for Apple Silicon to {dest_lib}")
                 shutil.copy2(arm64_lib, dest_lib)
-                print("Copied ARM64 binary for Apple Silicon")
+            else:
+                # Check if current binary is correct architecture
+                import subprocess
+                try:
+                    result = subprocess.run(['file', dest_lib], capture_output=True, text=True)
+                    if 'arm64' not in result.stdout:
+                        print(f"Replacing x86_64 binary with ARM64 binary")
+                        shutil.copy2(arm64_lib, dest_lib)
+                except:
+                    # Just replace to be safe
+                    shutil.copy2(arm64_lib, dest_lib)
     else:
         # Running on Intel Mac
         x86_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "x86_64", "_pytransform.dylib")
@@ -31,8 +45,8 @@ def _detect_mac_arch():
             # Copy x86_64 binary to root if not already there
             dest_lib = os.path.join(pyarmor_dir, "_pytransform.dylib")
             if not os.path.exists(dest_lib):
+                print(f"Copying Intel binary for macOS to {dest_lib}")
                 shutil.copy2(x86_lib, dest_lib)
-                print("Copied Intel binary for macOS")
 
 # Run architecture detection
 _detect_mac_arch()
