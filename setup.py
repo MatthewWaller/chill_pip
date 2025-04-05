@@ -29,7 +29,7 @@ setup(
             'pytransform/_pytransform.dylib',
             'pytransform/license.lic',
             'pytransform/platforms/darwin/x86_64/_pytransform.dylib',
-            'pytransform/platforms/darwin/arm64/_pytransform.dylib',
+            'pytransform/platforms/darwin/aarch64/_pytransform.dylib',
             'pytransform/platforms/windows/x86_64/_pytransform.dll',
             'pytransform/platforms/linux/x86_64/_pytransform.so',
         ],

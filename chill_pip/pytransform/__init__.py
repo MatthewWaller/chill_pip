@@ -1,3 +1,42 @@
+
+# Architecture detection for macOS
+import os
+import platform
+import shutil
+import sys
+
+def _detect_mac_arch():
+    """Check if running on Apple Silicon and use appropriate binary."""
+    # Only needed on macOS
+    if platform.system() != "Darwin":
+        return
+    
+    # Get the directory where this file is located
+    pyarmor_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Check platforms directory for appropriate binary
+    if platform.machine() == "arm64":
+        # Running on ARM64/Apple Silicon
+        arm64_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "aarch64", "_pytransform.dylib")
+        if os.path.exists(arm64_lib):
+            # Copy ARM64 binary to root if not already there
+            dest_lib = os.path.join(pyarmor_dir, "_pytransform.dylib")
+            if not os.path.exists(dest_lib):
+                shutil.copy2(arm64_lib, dest_lib)
+                print("Copied ARM64 binary for Apple Silicon")
+    else:
+        # Running on Intel Mac
+        x86_lib = os.path.join(pyarmor_dir, "platforms", "darwin", "x86_64", "_pytransform.dylib")
+        if os.path.exists(x86_lib):
+            # Copy x86_64 binary to root if not already there
+            dest_lib = os.path.join(pyarmor_dir, "_pytransform.dylib")
+            if not os.path.exists(dest_lib):
+                shutil.copy2(x86_lib, dest_lib)
+                print("Copied Intel binary for macOS")
+
+# Run architecture detection
+_detect_mac_arch()
+
 # These module alos are used by protection code, so that protection
 # code needn't import anything
 import os
