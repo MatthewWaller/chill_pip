@@ -4,10 +4,6 @@ import platform
 import subprocess
 from setuptools import setup
 from setuptools.command.install import install
-from setuptools.command.build_py import build_py
-from setuptools.command.bdist_wheel import bdist_wheel
-from setuptools.command.build import build
-from setuptools.command.egg_info import egg_info
 from pathlib import Path
 
 def get_python_version():
@@ -73,40 +69,26 @@ class CustomInstall(install):
             print("\nPlease download and install a specific wheel from the list above.")
             sys.exit(1)
 
-class SkipBuild(build):
-    def run(self):
-        pass
-
-class SkipBuildPy(build_py):
-    def run(self):
-        pass
-
-class SkipBdistWheel(bdist_wheel):
-    def run(self):
-        pass
-
-class SkipEggInfo(egg_info):
-    def run(self):
-        pass
-
 setup(
     name="chill-pip",
     version="0.1.0",
     description="A Python package with obfuscated wheels",
     author="Your Name",
     author_email="your.email@example.com",
-    cmdclass={
-        'install': CustomInstall,
-        'bdist_wheel': SkipBdistWheel,
-        'build': SkipBuild,
-        'build_py': SkipBuildPy,
-        'egg_info': SkipEggInfo,
-    },
+    cmdclass={'install': CustomInstall},
     python_requires='>=3.8',
     packages=[],  # No Python packages to include
     exclude_package_data={'': ['downloaded_wheels/*', 'dist/*']},  # Exclude wheel directories
     include_package_data=True,  # Include non-Python files
     package_data={
         '': ['dist/wheels/*.whl'],  # Include only the wheel files
+    },
+    # Skip wheel building
+    options={
+        'bdist_wheel': {
+            'universal': True,
+            'dist_dir': 'dist',
+            'skip_build': True,
+        },
     },
 )
