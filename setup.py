@@ -48,21 +48,17 @@ def find_matching_wheel():
         return None
     
     # Try to find an exact match first
-    for wheel_path in wheels_dir.glob(f"chill_pip-*-{py_version}-{py_version}*-{platform_tag}.whl"):
+    for wheel_path in wheels_dir.glob(f"chill_pip-*-cp{py_version.replace('.', '')}-cp{py_version.replace('.', '')}*-{platform_tag}.whl"):
         return wheel_path
     
-    # Try to find a compatible match
-    for wheel_path in wheels_dir.glob(f"chill_pip-*-{py_version}-*.whl"):
+    # If no exact match, try to find a compatible match for the platform
+    for wheel_path in wheels_dir.glob(f"chill_pip-*-{platform_tag}.whl"):
         return wheel_path
     
-    # Try to find any wheel for this Python version
-    for wheel_path in wheels_dir.glob(f"chill_pip-*-{py_version}*.whl"):
-        return wheel_path
-    
-    # Fall back to any wheel
-    for wheel_path in wheels_dir.glob("chill_pip-*.whl"):
-        return wheel_path
-    
+    print(f"\nNo matching wheel found for your platform ({platform.system()} {platform.machine()}) and Python version ({py_version}).")
+    print("Available wheels:")
+    for wheel in wheels_dir.glob("*.whl"):
+        print(f"  - {wheel.name}")
     return None
 
 class CustomInstall(install):
@@ -72,8 +68,7 @@ class CustomInstall(install):
             print(f"Found matching wheel: {wheel_path.name}")
             subprocess.check_call([sys.executable, "-m", "pip", "install", str(wheel_path)])
         else:
-            print("\nNo matching wheel found for your platform.")
-            print("Please download and install a specific wheel from the list in the README.")
+            print("\nPlease download and install a specific wheel from the list above.")
             sys.exit(1)
 
 setup(
