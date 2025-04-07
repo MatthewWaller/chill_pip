@@ -83,4 +83,12 @@ setup(
     package_data={
         '': ['dist/wheels/*.whl'],  # Include only the wheel files
     },
+    # Skip wheel building
+    options={
+        'bdist_wheel': {
+            'universal': True,
+            'dist_dir': 'dist',
+            'skip_build': True,
+        },
+    },
 )
