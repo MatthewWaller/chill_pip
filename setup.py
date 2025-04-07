@@ -4,6 +4,10 @@ import platform
 import subprocess
 from setuptools import setup
 from setuptools.command.install import install
+from setuptools.command.build_py import build_py
+from setuptools.command.bdist_wheel import bdist_wheel
+from setuptools.command.build import build
+from setuptools.command.egg_info import egg_info
 from pathlib import Path
 
 def get_python_version():
@@ -69,6 +73,22 @@ class CustomInstall(install):
             print("\nPlease download and install a specific wheel from the list above.")
             sys.exit(1)
 
+class SkipBuild(build):
+    def run(self):
+        pass
+
+class SkipBuildPy(build_py):
+    def run(self):
+        pass
+
+class SkipBdistWheel(bdist_wheel):
+    def run(self):
+        pass
+
+class SkipEggInfo(egg_info):
+    def run(self):
+        pass
+
 setup(
     name="chill-pip",
     version="0.1.0",
@@ -77,10 +97,10 @@ setup(
     author_email="your.email@example.com",
     cmdclass={
         'install': CustomInstall,
-        'bdist_wheel': lambda: None,  # Skip wheel building
-        'build': lambda: None,  # Skip build
-        'build_py': lambda: None,  # Skip build_py
-        'egg_info': lambda: None,  # Skip egg_info
+        'bdist_wheel': SkipBdistWheel,
+        'build': SkipBuild,
+        'build_py': SkipBuildPy,
+        'egg_info': SkipEggInfo,
     },
     python_requires='>=3.8',
     packages=[],  # No Python packages to include
