@@ -4,7 +4,15 @@ A simple Dash application with obfuscated functionality.
 
 ## Installation
 
-### Option 1: Direct wheel installation
+### Option 1: Automatic installation (recommended)
+
+```bash
+pip install git+https://github.com/MatthewWaller/chill_pip/
+```
+
+This will automatically select and install the appropriate wheel for your Python version and operating system.
+
+### Option 2: Direct wheel installation
 
 Download and install a specific wheel for your platform. Replace the filename with one that matches your OS and Python version:
 

@@ -2,93 +2,122 @@ import os
 import sys
 import platform
 import subprocess
-from setuptools import setup
+import setuptools
 from setuptools.command.install import install
-from pathlib import Path
-
-def get_python_version():
-    """Get the Python version as a string (e.g., '3.8')."""
-    return f"{sys.version_info.major}.{sys.version_info.minor}"
-
-def get_platform_tag():
-    """Get the platform tag for wheel selection."""
-    system = platform.system().lower()
-    machine = platform.machine().lower()
-    
-    if system == 'linux':
-        if machine == 'x86_64':
-            return 'manylinux_2_17_x86_64'
-        elif machine == 'aarch64':
-            return 'manylinux_2_17_aarch64'
-    elif system == 'darwin':
-        # For macOS, prefer universal2 wheels
-        return 'macosx_11_0_universal2'
-    elif system == 'windows':
-        if machine == 'amd64' or machine == 'x86_64':
-            return 'win_amd64'
-        else:
-            return 'win32'
-    return None
-
-def find_matching_wheel():
-    """Find a wheel that matches the current platform and Python version."""
-    py_version = get_python_version()
-    platform_tag = get_platform_tag()
-    
-    if not platform_tag:
-        print(f"Unsupported platform: {platform.system()} {platform.machine()}")
-        return None
-    
-    # Look for wheels in the dist/wheels directory
-    wheels_dir = Path(__file__).parent / 'dist' / 'wheels'
-    if not wheels_dir.exists():
-        print(f"Wheels directory not found: {wheels_dir}")
-        return None
-    
-    # Try to find an exact match first
-    for wheel_path in wheels_dir.glob(f"chill_pip-*-cp{py_version.replace('.', '')}-cp{py_version.replace('.', '')}*-{platform_tag}.whl"):
-        return wheel_path
-    
-    # If no exact match, try to find a compatible match for the platform
-    for wheel_path in wheels_dir.glob(f"chill_pip-*-{platform_tag}.whl"):
-        return wheel_path
-    
-    print(f"\nNo matching wheel found for your platform ({platform.system()} {platform.machine()}) and Python version ({py_version}).")
-    print("Available wheels:")
-    for wheel in wheels_dir.glob("*.whl"):
-        print(f"  - {wheel.name}")
-    return None
 
 class CustomInstall(install):
     def run(self):
-        wheel_path = find_matching_wheel()
-        if wheel_path:
-            print(f"Found matching wheel: {wheel_path.name}")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", str(wheel_path)])
+        python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        system = platform.system().lower()
+        machine = platform.machine().lower()
+        
+        # Map platform to wheel naming convention
+        os_map = {
+            'darwin': 'macosx',
+            'linux': 'linux',
+            'windows': 'win'
+        }
+        
+        # Map machine architecture
+        arch_map = {
+            'x86_64': 'x86_64',
+            'amd64': 'x86_64',
+            'i386': 'i386',
+            'i686': 'i386',
+            'arm64': 'aarch64',
+            'aarch64': 'aarch64'
+        }
+        
+        os_name = os_map.get(system, system)
+        arch = arch_map.get(machine, machine)
+        
+        # Handle macOS universal2 wheel
+        if system == 'darwin':
+            # Modern macOS uses universal2 wheels
+            arch = 'universal2'
+            # macOS version detection (simplified)
+            mac_ver = '.'.join(platform.mac_ver()[0].split('.')[:2])
+            os_name = f"macosx_{mac_ver.replace('.', '_')}"
+        
+        # Python ABI tag (simplified)
+        cp_version = f"cp{sys.version_info.major}{sys.version_info.minor}"
+        
+        # Pattern to look for
+        wheel_pattern = f"chill_pip-0.1.0-{cp_version}-{cp_version}"
+        
+        # Windows has a different naming convention
+        if system == 'windows':
+            # Check for different Windows wheel naming patterns
+            possible_patterns = [
+                f"{wheel_pattern}-win_{arch}.whl",
+                f"{wheel_pattern}-win32.whl",
+                f"{wheel_pattern}-win_amd64.whl"
+            ]
+        elif system == 'darwin':
+            possible_patterns = [
+                f"{wheel_pattern}-{os_name}_universal2.whl",
+                f"{wheel_pattern}-{os_name}_{arch}.whl",
+                f"{wheel_pattern}-macosx_10_9_universal2.whl",
+                f"{wheel_pattern}-macosx_11_0_universal2.whl"
+            ]
+        else:  # Linux and others
+            possible_patterns = [
+                f"{wheel_pattern}-{os_name}_{arch}.whl",
+                f"{wheel_pattern}-manylinux1_{arch}.whl",
+                f"{wheel_pattern}-manylinux2010_{arch}.whl",
+                f"{wheel_pattern}-manylinux2014_{arch}.whl"
+            ]
+        
+        # Find available wheels
+        wheels_dir = os.path.join('dist', 'wheels')
+        if not os.path.exists(wheels_dir):
+            print(f"Warning: Wheels directory not found at {wheels_dir}")
+            wheels_dir = os.path.join(os.path.dirname(__file__), 'dist', 'wheels')
+            
+        wheels = os.listdir(wheels_dir) if os.path.exists(wheels_dir) else []
+        
+        # Try to find a matching wheel
+        matching_wheel = None
+        for pattern in possible_patterns:
+            for wheel in wheels:
+                if pattern in wheel:
+                    matching_wheel = os.path.join(wheels_dir, wheel)
+                    break
+            if matching_wheel:
+                break
+        
+        if matching_wheel:
+            print(f"Installing matching wheel: {matching_wheel}")
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', matching_wheel])
         else:
-            print("\nPlease download and install a specific wheel from the list above.")
-            sys.exit(1)
+            print("No matching wheel found for your system. Available wheels:")
+            for wheel in wheels:
+                print(f"  - {wheel}")
+            print(f"Python: {python_version}, OS: {system} ({os_name}), Architecture: {arch}")
+            raise Exception("Could not find a compatible wheel for your system")
 
-setup(
-    name="chill-pip",
+setuptools.setup(
+    name="chill_pip",
     version="0.1.0",
-    description="A Python package with obfuscated wheels",
-    author="Your Name",
-    author_email="your.email@example.com",
-    cmdclass={'install': CustomInstall},
-    python_requires='>=3.8',
-    packages=[],  # No Python packages to include
-    exclude_package_data={'': ['downloaded_wheels/*', 'dist/*']},  # Exclude wheel directories
-    include_package_data=True,  # Include non-Python files
-    package_data={
-        '': ['dist/wheels/*.whl'],  # Include only the wheel files
+    author="Matthew Waller",
+    author_email="author@example.com",
+    description="A Dash application with obfuscated functionality",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/MatthewWaller/chill_pip",
+    packages=setuptools.find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires=">=3.8",
+    cmdclass={
+        'install': CustomInstall,
     },
-    # Skip wheel building
-    options={
-        'bdist_wheel': {
-            'universal': True,
-            'dist_dir': 'dist',
-            'skip_build': True,
-        },
+    entry_points={
+        'console_scripts': [
+            'chill-pip=chill_pip.app:main',
+        ],
     },
 )
