@@ -75,20 +75,18 @@ setup(
     description="A Python package with obfuscated wheels",
     author="Your Name",
     author_email="your.email@example.com",
-    cmdclass={'install': CustomInstall},
+    cmdclass={
+        'install': CustomInstall,
+        'bdist_wheel': lambda: None,  # Skip wheel building
+        'build': lambda: None,  # Skip build
+        'build_py': lambda: None,  # Skip build_py
+        'egg_info': lambda: None,  # Skip egg_info
+    },
     python_requires='>=3.8',
     packages=[],  # No Python packages to include
     exclude_package_data={'': ['downloaded_wheels/*', 'dist/*']},  # Exclude wheel directories
     include_package_data=True,  # Include non-Python files
     package_data={
         '': ['dist/wheels/*.whl'],  # Include only the wheel files
-    },
-    # Skip wheel building
-    options={
-        'bdist_wheel': {
-            'universal': True,
-            'dist_dir': 'dist',
-            'skip_build': True,
-        },
     },
 )
