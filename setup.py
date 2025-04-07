@@ -21,10 +21,8 @@ def get_platform_tag():
         elif machine == 'aarch64':
             return 'manylinux_2_17_aarch64'
     elif system == 'darwin':
-        if machine == 'x86_64':
-            return 'macosx_10_9_x86_64'
-        elif machine == 'arm64':
-            return 'macosx_11_0_arm64'
+        # For macOS, prefer universal2 wheels
+        return 'macosx_11_0_universal2'
     elif system == 'windows':
         if machine == 'amd64' or machine == 'x86_64':
             return 'win_amd64'
