@@ -84,4 +84,10 @@ setup(
     author_email="your.email@example.com",
     cmdclass={'install': CustomInstall},
     python_requires='>=3.8',
+    packages=[],  # No Python packages to include
+    exclude_package_data={'': ['downloaded_wheels/*', 'dist/*']},  # Exclude wheel directories
+    include_package_data=True,  # Include non-Python files
+    package_data={
+        '': ['dist/wheels/*.whl'],  # Include only the wheel files
+    },
 )
