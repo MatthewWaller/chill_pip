@@ -1,42 +1,57 @@
 # Chill Pip
 
-A simple Dash application with secret functionality.
+A Python package with obfuscated wheels.
 
 ## Installation
 
-Install directly from GitHub:
+You can install the package in two ways:
 
-```
-pip install git+https://github.com/MatthewWaller/chill_pip.git
+### 1. Direct Installation (Recommended)
+
+Simply run:
+```bash
+pip install git+https://github.com/yourusername/chill-pip-public.git
 ```
 
-Or install a specific wheel for your platform:
+This will automatically detect your platform and Python version and install the appropriate wheel.
 
+### 2. Manual Installation
+
+If you prefer to install manually, you can download and install a specific wheel:
+
+```bash
+# For Windows (64-bit)
+pip install https://raw.githubusercontent.com/yourusername/chill-pip-public/main/dist/wheels/chill_pip-0.1.0-cp38-cp38-win_amd64.whl
+
+# For macOS (Intel)
+pip install https://raw.githubusercontent.com/yourusername/chill-pip-public/main/dist/wheels/chill_pip-0.1.0-cp38-cp38-macosx_10_9_x86_64.whl
+
+# For macOS (Apple Silicon)
+pip install https://raw.githubusercontent.com/yourusername/chill-pip-public/main/dist/wheels/chill_pip-0.1.0-cp38-cp38-macosx_11_0_arm64.whl
+
+# For Linux (x86_64)
+pip install https://raw.githubusercontent.com/yourusername/chill-pip-public/main/dist/wheels/chill_pip-0.1.0-cp38-cp38-manylinux_2_17_x86_64.whl
+
+# For Linux (ARM64)
+pip install https://raw.githubusercontent.com/yourusername/chill-pip-public/main/dist/wheels/chill_pip-0.1.0-cp38-cp38-manylinux_2_17_aarch64.whl
 ```
-pip install https://github.com/MatthewWaller/chill_pip/raw/main/dist/wheels/[wheel-filename].whl
-```
+
+Replace the version number and Python version in the URL with the appropriate one for your system.
 
 ## Available Wheels
 
-- chill_pip-0.1.0-cp310-cp310-linux_x86_64.whl
-- chill_pip-0.1.0-cp310-cp310-macosx_10_9_universal2.whl
-- chill_pip-0.1.0-cp310-cp310-win_amd64.whl
-- chill_pip-0.1.0-cp311-cp311-linux_x86_64.whl
-- chill_pip-0.1.0-cp311-cp311-macosx_10_9_universal2.whl
-- chill_pip-0.1.0-cp311-cp311-win_amd64.whl
-- chill_pip-0.1.0-cp38-cp38-linux_x86_64.whl
-- chill_pip-0.1.0-cp38-cp38-macosx_11_0_universal2.whl
-- chill_pip-0.1.0-cp38-cp38-win_amd64.whl
-- chill_pip-0.1.0-cp39-cp39-linux_x86_64.whl
-- chill_pip-0.1.0-cp39-cp39-macosx_10_9_universal2.whl
-- chill_pip-0.1.0-cp39-cp39-win_amd64.whl
+The following wheels are available:
+
+- Windows (64-bit): `chill_pip-0.1.0-cp38-cp38-win_amd64.whl`
+- macOS (Intel): `chill_pip-0.1.0-cp38-cp38-macosx_10_9_x86_64.whl`
+- macOS (Apple Silicon): `chill_pip-0.1.0-cp38-cp38-macosx_11_0_arm64.whl`
+- Linux (x86_64): `chill_pip-0.1.0-cp38-cp38-manylinux_2_17_x86_64.whl`
+- Linux (ARM64): `chill_pip-0.1.0-cp38-cp38-manylinux_2_17_aarch64.whl`
 
 ## Usage
 
 After installation, you can run the application with:
 
-
-
-Or you can use it in your own Python code:
-
-
+```bash
+chill-pip
+```

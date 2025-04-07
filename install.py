@@ -2,8 +2,6 @@ import os
 import sys
 import platform
 import subprocess
-from setuptools import setup
-from setuptools.command.install import install
 from pathlib import Path
 
 def get_python_version():
@@ -65,23 +63,31 @@ def find_matching_wheel():
     
     return None
 
-class CustomInstall(install):
-    def run(self):
-        wheel_path = find_matching_wheel()
-        if wheel_path:
-            print(f"Found matching wheel: {wheel_path.name}")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", str(wheel_path)])
-        else:
-            print("\nNo matching wheel found for your platform.")
-            print("Please download and install a specific wheel from the list in the README.")
-            sys.exit(1)
+def install_wheel(wheel_path):
+    """Install the wheel using pip."""
+    print(f"Installing wheel: {wheel_path}")
+    result = subprocess.run([sys.executable, "-m", "pip", "install", str(wheel_path)])
+    return result.returncode
 
-setup(
-    name="chill-pip",
-    version="0.1.0",
-    description="A Python package with obfuscated wheels",
-    author="Your Name",
-    author_email="your.email@example.com",
-    cmdclass={'install': CustomInstall},
-    python_requires='>=3.8',
-)
+def main():
+    """Main function to find and install the right wheel."""
+    print(f"Python version: {sys.version}")
+    print(f"Platform: {platform.platform()}")
+    
+    wheel_path = find_matching_wheel()
+    if wheel_path:
+        print(f"Found matching wheel: {wheel_path.name}")
+        ret = install_wheel(wheel_path)
+        if ret == 0:
+            print("\nInstallation successful!")
+            print("You can now run the application with: chill-pip")
+        else:
+            print(f"\nInstallation failed with code {ret}")
+            print("Try installing manually with:")
+            print(f"  pip install {wheel_path}")
+    else:
+        print("\nNo matching wheel found for your platform.")
+        print("Please download and install a specific wheel from the list in the README.")
+
+if __name__ == "__main__":
+    main()
